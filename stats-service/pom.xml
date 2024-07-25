@@ -14,7 +14,7 @@
 
     <name>stats-service</name>
     <modules>
-        <module>DTOlib</module>
+        <module>citadelOfDto</module>
         <module>statistics-service</module>
         <module>stats-client</module>
     </modules>
