@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatsRepository extends JpaRepository<Metric, Long> {
-    @Query("SELECT new stats.model.MetricSummary(m.app, m.uri, COUNT(m.ip), COUNT(DISTINCT m.ip)) " +
+    @Query("SELECT new stats.model.MetricSummary(m.app, m.uri, COUNT(DISTINCT m.ip), COUNT(m.ip)) " +
             "FROM Metric m " +
             "WHERE m.uri IN :uris AND m.timestamp BETWEEN :start AND :end " +
             "GROUP BY m.app, m.uri")
