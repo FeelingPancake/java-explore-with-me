@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface StatsService {
     void saveStat(Metric metric);
-    List<MetricSummary> getStats(String[] uris, LocalDateTime start, LocalDateTime end);
+
+    List<MetricSummary> getStats(String[] uris, LocalDateTime start, LocalDateTime end, Boolean unique);
 }

@@ -1,7 +1,7 @@
-package statsHttpClient;
+package statshttpclient;
 
-import DTOlib.stats.MetricCreateDto;
-import DTOlib.util.LocalDateTimeCoder;
+import dtostorage.stats.MetricCreateDto;
+import dtostorage.util.LocalDateTimeCoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,10 +16,10 @@ public class StatsHttpClient extends BaseHttpClient {
     @Autowired
     public StatsHttpClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
-                        .build()
+            builder
+                .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                .build()
         );
     }
 
@@ -27,10 +27,10 @@ public class StatsHttpClient extends BaseHttpClient {
         String serializedStart = LocalDateTimeCoder.encodeDate(start);
         String serializedEnd = LocalDateTimeCoder.encodeDate(end);
         Map<String, Object> parameters = Map.of(
-                "start", serializedStart,
-                "end", serializedEnd,
-                "uris", uris,
-                "unique", unique
+            "start", serializedStart,
+            "end", serializedEnd,
+            "uris", uris,
+            "unique", unique
         );
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }

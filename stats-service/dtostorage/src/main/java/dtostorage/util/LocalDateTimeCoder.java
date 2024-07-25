@@ -1,4 +1,4 @@
-package DTOlib.util;
+package dtostorage.util;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException;
 
 @RequiredArgsConstructor
 public abstract class LocalDateTimeCoder {
-    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static String encodeDate(LocalDateTime date) throws DateTimeException {
         String localDateTime = date.format(formatter);

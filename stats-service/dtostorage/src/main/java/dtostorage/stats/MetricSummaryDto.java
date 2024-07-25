@@ -1,4 +1,4 @@
-package DTOlib.stats;
+package dtostorage.stats;
 
 import lombok.AccessLevel;
 import lombok.Builder;

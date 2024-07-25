@@ -25,11 +25,11 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<MetricSummary> getStats(String[] uris, LocalDateTime start, LocalDateTime end) {
+    public List<MetricSummary> getStats(String[] uris, LocalDateTime start, LocalDateTime end, Boolean unique) {
         log.info("Вызов метода сервиса статистики для получения обобщенной метрики по списку uri = {}",
-                Arrays.toString(uris));
-        List<MetricSummary> metricSummaries = statsRepository.findMetricSummary(uris, start, end);
+            Arrays.toString(uris));
 
+        List<MetricSummary> metricSummaries = statsRepository.findMetricSummaries(uris, start, end, unique);
         log.debug("Полученный список - {}", metricSummaries);
 
         return metricSummaries;

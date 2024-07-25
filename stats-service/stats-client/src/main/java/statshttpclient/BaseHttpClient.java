@@ -1,4 +1,4 @@
-package statsHttpClient;
+package statshttpclient;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +16,8 @@ public class BaseHttpClient {
     protected final RestTemplate rest;
 
     public BaseHttpClient(RestTemplate rest) {
-            this.rest = rest;
-        }
+        this.rest = rest;
+    }
 
     private static ResponseEntity<Object> prepareResponse(ResponseEntity<Object> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
@@ -33,7 +33,8 @@ public class BaseHttpClient {
         return responseBuilder.build();
     }
 
-    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
+    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path,
+                                                          @Nullable Map<String, Object> parameters, @Nullable T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
         ResponseEntity<Object> statsServiceResponse;
