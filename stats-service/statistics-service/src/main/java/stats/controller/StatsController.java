@@ -44,7 +44,7 @@ public class StatsController {
     public List<MetricSummary> getStats(@RequestParam(value = "start") @NotBlank String start,
                                         @RequestParam(value = "end") @NotBlank String end,
                                         @RequestParam(value = "uris", required = false) String[] uris,
-                                        @RequestParam(value = "unique", defaultValue = "false", required = false)
+                                        @RequestParam(value = "unique", defaultValue = "false")
                                         Boolean unique) {
         LocalDateTime startDate = LocalDateTimeCoder.decodeDate(start);
         LocalDateTime endDate = LocalDateTimeCoder.decodeDate(end);

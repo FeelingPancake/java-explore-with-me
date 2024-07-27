@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS stats (
   id BIGINT GENERATED AlWAYS AS IDENTITY NOT NULL,
-  stats_app VARCHAR(600) NOT NULL,
-  stats_uri VARCHAR(600) NOT NULL,
-  stats_ip VARCHAR(600) NOT NULL,
+  stats_app VARCHAR(256) NOT NULL,
+  stats_uri VARCHAR(256) NOT NULL,
+  stats_ip VARCHAR(13) NOT NULL,
   stats_timestamp TIMESTAMP NOT NULL,
   CONSTRAINT pk_stats PRIMARY KEY (id)
 );
