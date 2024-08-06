@@ -28,16 +28,20 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (users != null && users.length > 0 && !(users.length == 1 && users[0] == 0)) {
-            predicates.add(root.get("initiator").in((Object[]) users));
+        if (users != null && users.length > 0) {
+            if (!(users.length == 1 && users[0] == 0)) {
+                predicates.add(root.get("initiator").in((Object[]) users));
+            }
         }
 
         if (states != null && states.length > 0) {
             predicates.add(root.get("state").in((Object[]) states));
         }
 
-        if (categories != null && categories.length > 0 && !(categories.length == 1 && categories[0] == 0)) {
-            predicates.add(root.get("category").in((Object[]) categories));
+        if (categories != null && categories.length > 0) {
+            if (!(categories.length == 1 && categories[0] == 0)) {
+                predicates.add(root.get("category").in((Object[]) categories));
+            }
         }
 
         if (rangeStart != null) {
@@ -64,15 +68,17 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (text != null && !text.isBlank()) {
+        if (text != null && !text.isBlank() && !text.equals("0")) {
             predicates.add(cb.or(
                 cb.like(cb.lower(root.get("description")), "%" + text.toLowerCase() + "%"),
                 cb.like(cb.lower(root.get("annotation")), "%" + text.toLowerCase() + "%")
             ));
         }
 
-        if (categories != null && categories.length > 0 && !(categories.length == 1 && categories[0] == 0)) {
-            predicates.add(root.get("category").in((Object[]) categories));
+        if (categories != null && categories.length > 0) {
+            if (!(categories.length == 1 && categories[0] == 0)) {
+                predicates.add(root.get("category").in((Object[]) categories));
+            }
         }
 
         if (paid != null) {
