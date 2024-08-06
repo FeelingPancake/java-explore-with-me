@@ -15,7 +15,7 @@ public class AfterTwoHoursValidator implements ConstraintValidator<AfterTwoHours
         if (eventDate == null) {
             return false;
         }
-        LocalDateTime nowPlusTwoHours = LocalDateTime.now().plusHours(2);
+        LocalDateTime nowPlusTwoHours = LocalDateTime.now().plusHours(2).plusMinutes(1);
         return eventDate.isAfter(nowPlusTwoHours);
     }
 }
