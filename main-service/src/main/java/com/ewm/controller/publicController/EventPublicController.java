@@ -3,7 +3,6 @@ package com.ewm.controller.publicController;
 import com.ewm.service.event.EventService;
 import com.ewm.util.enums.SortEvent;
 import dtostorage.main.event.EventFullDto;
-import dtostorage.main.event.EventShortDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +25,7 @@ public class EventPublicController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventShortDto> getEvents(@RequestParam(name = "text", required = false) String text,
+    public List<EventFullDto> getEvents(@RequestParam(name = "text", required = false) String text,
                                          @RequestParam(name = "categories", required = false) Long[] categories,
                                          @RequestParam(name = "paid", required = false) Boolean paid,
                                          @RequestParam(name = "rangeStart", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
@@ -36,6 +35,10 @@ public class EventPublicController {
                                          @RequestParam(name = "sort", required = false) SortEvent sort,
                                          @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                          @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
+
+        if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
+            throw new IllegalArgumentException("rangeEnd должен быть больше rangeStart");
+        }
 
         return eventService.getEventsForPublic(text, categories, paid, rangeStart,
             rangeEnd, onlyAvailable, sort, from, size);

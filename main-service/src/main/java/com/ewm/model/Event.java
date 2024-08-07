@@ -66,8 +66,11 @@ public class Event {
 
     @PrePersist
     protected void onCreate() {
+        if (this.requestModeration == null) {
+            requestModeration = true;
+        }
+        confirmedRequests = 0L;
         state = EventState.PENDING;
         createdOn = LocalDateTime.now();
-        requestModeration = true;
     }
 }

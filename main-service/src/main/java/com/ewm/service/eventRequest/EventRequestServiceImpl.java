@@ -1,6 +1,5 @@
 package com.ewm.service.eventRequest;
 
-import com.ewm.exception.AlreadyExistsExeption;
 import com.ewm.exception.ConfilctException;
 import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Event;
@@ -10,10 +9,12 @@ import com.ewm.repository.EventRepository;
 import com.ewm.repository.EventRequestRepository;
 import com.ewm.repository.UserRepository;
 import com.ewm.util.enums.EventRequestStatus;
+import com.ewm.util.enums.EventState;
 import com.ewm.util.mapper.event.EventRequestMapper;
 import dtostorage.main.eventRequest.ParticipationRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     private final EventRequestRepository eventRequestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher publisher;
     private final EventRequestMapper eventRequestMapper = EventRequestMapper.INSTANCE;
 
     @Override
@@ -56,22 +58,35 @@ public class EventRequestServiceImpl implements EventRequestService {
             .build();
 
         if (eventRequestRepository.findByEventIdAndRequesterId(eventId, userId).isPresent()) {
-            throw new AlreadyExistsExeption("Запрос уже существует");
+            throw new ConfilctException("Запрос уже существует");
+        }
+
+        if (event.getState().equals(EventState.PENDING)) {
+            throw new ConfilctException("Событие ещё не опубликовано");
         }
 
         if (event.getInitiator().equals(user)) {
             throw new ConfilctException("Инициатор не может отправить запрос на свое событие");
         }
 
-        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ConfilctException("Достигнут лимит запросов на участие");
-        }
-
-        if (!event.getRequestModeration()) {
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             eventRequest.setStatus(EventRequestStatus.CONFIRMED);
         }
 
-        return eventRequestMapper.toParticipationRequestDto(eventRequestRepository.save(eventRequest));
+        if (event.getConfirmedRequests() >= event.getParticipantLimit()
+            && (event.getParticipantLimit() != 0 || !event.getRequestModeration())) {
+            throw new ConfilctException("Достигнут лимит запросов на участие");
+        }
+
+        EventRequest savedEventRequest = eventRequestRepository.save(eventRequest);
+
+        log.debug("createEventRequest() - savedEventRequest = {} ", savedEventRequest);
+
+        ParticipationRequestDto participationRequestDto =
+            eventRequestMapper.toParticipationRequestDto(savedEventRequest);
+
+        publisher.publishEvent(eventId);
+        return participationRequestDto;
     }
 
     @Override
@@ -87,9 +102,13 @@ public class EventRequestServiceImpl implements EventRequestService {
             throw new ConfilctException("Пользователь " + userId + "не является тем, кто создал запрос");
         }
 
-        eventRequest.setStatus(EventRequestStatus.REJECTED);
+        eventRequest.setStatus(EventRequestStatus.CANCELED);
 
-        return eventRequestMapper.toParticipationRequestDto(eventRequestRepository.save(eventRequest));
+        ParticipationRequestDto participationRequestDto =
+            eventRequestMapper.toParticipationRequestDto(eventRequestRepository.save(eventRequest));
+        publisher.publishEvent(eventRequest.getEvent().getId());
+
+        return participationRequestDto;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.ewm.exception.handler;
 
+import com.ewm.exception.ConfilctException;
 import com.ewm.exception.NotExistsExeption;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,6 +38,18 @@ public class ExceptionApiHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({NotExistsExeption.class})
     public ApiError handleNotFoundExceptions(RuntimeException ex) {
+        ApiError apiError = ApiError.builder()
+            .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .message(ex.getMessage())
+            .status(HttpStatus.NOT_FOUND.toString())
+            .timestamp(LocalDateTime.now().format(formatter)).build();
+        apiError.log();
+        return apiError;
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler({ConfilctException.class})
+    public ApiError handleConflictExceptions(RuntimeException ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
             .message(ex.getMessage())

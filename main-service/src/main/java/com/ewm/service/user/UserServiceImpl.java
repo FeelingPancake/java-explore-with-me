@@ -27,20 +27,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserDto> getUsers(Long[] ids, Integer from, Integer size) {
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         log.debug("Запрос на получение пользователей - {}, с размерностью от {} до {}", ids, from, size);
         int page = from / size;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         log.info("Запрос на получение пользователей");
 
-        if (ids == null || ids.length == 0) {
+        if (ids == null || ids.isEmpty()) {
             log.info("Получение всех пользователей");
 
             return userRepository.findAll(pageable).toList().stream()
                 .map(userMapper::toUserDto).collect(Collectors.toList());
         }
 
-        return userRepository.findAllById(ids, pageable).toList().stream()
+        return userRepository.findAllByIds(ids, pageable).toList().stream()
             .map(userMapper::toUserDto).collect(Collectors.toList());
     }
 

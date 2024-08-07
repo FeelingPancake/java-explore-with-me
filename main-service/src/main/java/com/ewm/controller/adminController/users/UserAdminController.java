@@ -29,7 +29,7 @@ public class UserAdminController {
     private final UserService userService;
 
     @GetMapping
-    List<UserDto> getUsers(@RequestParam(value = "uris", required = false) Long[] ids,
+    List<UserDto> getUsers(@RequestParam(value = "ids", required = false) List<Long> ids,
                            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
                            @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
 
@@ -37,13 +37,14 @@ public class UserAdminController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     UserDto createUser(@RequestBody @Valid NewUserRequest newUserRequest) {
         return userService.createUser(newUserRequest);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteUser(@PathVariable Long userId) {
+    void deleteUser(@PathVariable(name = "userId") Long userId) {
         userService.deleteUser(userId);
     }
 }

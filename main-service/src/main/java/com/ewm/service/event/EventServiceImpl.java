@@ -5,9 +5,11 @@ import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Category;
 import com.ewm.model.Event;
 import com.ewm.model.EventRequest;
+import com.ewm.model.User;
 import com.ewm.repository.CategoryRepository;
 import com.ewm.repository.EventRepository;
 import com.ewm.repository.EventRequestRepository;
+import com.ewm.repository.UserRepository;
 import com.ewm.util.enums.EventRequestStatus;
 import com.ewm.util.enums.EventState;
 import com.ewm.util.enums.SortEvent;
@@ -15,7 +17,6 @@ import com.ewm.util.mapper.event.EventMapper;
 import com.ewm.util.mapper.event.EventRequestMapper;
 import com.ewm.util.stats.StatsClient;
 import dtostorage.main.event.EventFullDto;
-import dtostorage.main.event.EventShortDto;
 import dtostorage.main.event.NewEventDto;
 import dtostorage.main.event.UpdateEventAdminRequest;
 import dtostorage.main.event.UpdateEventUserRequest;
@@ -24,6 +25,7 @@ import dtostorage.main.eventRequest.EventRequestStatusUpdateResult;
 import dtostorage.main.eventRequest.ParticipationRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventRequestRepository eventRequestRepository;
+    private final ApplicationEventPublisher publisher;
+    private final UserRepository userRepository;
     private final StatsClient statsClient;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
@@ -53,22 +57,26 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<EventShortDto> getEvents(Long userId, Integer from, Integer size) {
+    public List<EventFullDto> getEvents(Long userId, Integer from, Integer size) {
         log.debug("Вызов getEvents() с параметрами userId: {}, from: {}, size: {}", userId, from, size);
 
         int page = from / size;
+        User initiator = userRepository.findById(userId).orElseThrow(
+            () -> new NotExistsExeption("Пользователя - " + userId + " нет")
+        );
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).toList();
         HashMap<Long, Long> views = statsClient.getMassStats(events);
 
         log.debug("getEvents() возвращает: {}", events);
-        return events.stream().map(event -> eventMapper.toEventShortDto(event, views.getOrDefault(event.getId(), 0L)))
+        return events.stream().map(event -> eventMapper.toEventFullDto(event, views.getOrDefault(event.getId(), 0L)))
             .collect(
                 Collectors.toList());
     }
 
     @Override
-    public List<EventShortDto> getEventsForPublic(String text, Long[] categories, Boolean paid,
+    public List<EventFullDto> getEventsForPublic(String text, Long[] categories, Boolean paid,
                                                   LocalDateTime rangeStart,
                                                   LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvent sort,
                                                   Integer from, Integer size) {
@@ -85,24 +93,24 @@ public class EventServiceImpl implements EventService {
         log.debug("getEventsForPublic() возвращает: {}", events);
         HashMap<Long, Long> views = statsClient.getMassStats(events);
 
-        Comparator<EventShortDto> comparator;
+        Comparator<EventFullDto> comparator;
         if (sort == null) {
-            comparator = Comparator.comparing(EventShortDto::getId);
+            comparator = Comparator.comparing(EventFullDto::getId);
         } else {
             switch (sort) {
                 case EVENT_DATE:
-                    comparator = Comparator.comparing(EventShortDto::getDate);
+                    comparator = Comparator.comparing(EventFullDto::getEventDate);
                     break;
                 case VIEWS:
-                    comparator = Comparator.comparing(EventShortDto::getViews);
+                    comparator = Comparator.comparing(EventFullDto::getViews);
                     break;
                 default:
-                    comparator = Comparator.comparing(EventShortDto::getId);
+                    comparator = Comparator.comparing(EventFullDto::getId);
             }
         }
 
         return events.stream()
-            .map(event -> eventMapper.toEventShortDto(event, views.getOrDefault(event.getId(), 0L)))
+            .map(event -> eventMapper.toEventFullDto(event, views.getOrDefault(event.getId(), 0L)))
             .sorted(comparator)
             .collect(Collectors.toList());
     }
@@ -146,8 +154,9 @@ public class EventServiceImpl implements EventService {
         Event existingEvent = eventRepository.findById(eventId).orElseThrow(() ->
             new NotExistsExeption("События - " + eventId + " нет."));
 
-        Category category = categoryRepository.findById(updateEventAdminRequest.getCategory()).orElseThrow(
-            () -> new NotExistsExeption("Категории - " + updateEventAdminRequest.getCategory() + " нет."));
+        Category category = updateEventAdminRequest.getCategory() == null ? null :
+            categoryRepository.findById(updateEventAdminRequest.getCategory()).orElseThrow(
+                () -> new NotExistsExeption("Категории - " + updateEventAdminRequest.getCategory() + " нет."));
 
         Event event = eventMapper.toEvent(updateEventAdminRequest, category);
         Event updatedEvent = existingEvent.toBuilder()
@@ -165,6 +174,21 @@ public class EventServiceImpl implements EventService {
             .title(event.getTitle() == null ? existingEvent.getTitle() : event.getTitle())
             .build();
 
+        log.debug("updatedEvent - {}, existingEvent - {}", updatedEvent, existingEvent);
+        EventState existingState = existingEvent.getState();
+        EventState updatedState = updatedEvent.getState();
+        if (existingState.equals(updatedState) &&
+            updatedState.equals(EventState.PUBLISHED)) {
+            throw new ConfilctException("Публикация уже опубликованного события");
+        } else if (existingState.equals(EventState.CANCELED) && updatedState.equals(EventState.PUBLISHED)) {
+            throw new ConfilctException("Публикация отменного события");
+        } else if (existingState.equals(EventState.PUBLISHED) && updatedState.equals(EventState.CANCELED)) {
+            throw new ConfilctException("Отмена опубликованного события");
+        }
+
+        if (updatedEvent.getState().equals(EventState.PUBLISHED)) {
+            updatedEvent.setPublishedOn(LocalDateTime.now());
+        }
 
         Event savedEvent = eventRepository.save(updatedEvent);
         HashMap<Long, Long> views = statsClient.getMassStats(List.of(savedEvent));
@@ -179,11 +203,15 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(
             () -> new NotExistsExeption("Категории - " + newEventDto.getCategory() + " нет.")
         );
+        User initiator = userRepository.findById(userId).orElseThrow(
+            () -> new NotExistsExeption("Пользователя с " + userId + " нет."));
+
         Event event = eventMapper.toEvent(newEventDto, category);
+        event.setInitiator(initiator);
         Long views = 0L;
         Event createdEvent = eventRepository.save(event);
 
-        log.debug("createEvent() создано: {}", createdEvent);
+        log.debug("createEvent() создано: {} c id - {}", createdEvent, createdEvent.getId());
         return eventMapper.toEventFullDto(createdEvent, views);
     }
 
@@ -194,6 +222,12 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() ->
             new NotExistsExeption("События - " + eventId.toString() + " нет."));
         HashMap<Long, Long> views = statsClient.getMassStats(List.of(event));
+        User initiator = userRepository.findById(userId).orElseThrow(
+            () -> new NotExistsExeption("Пользователя с " + userId + " нет."));
+
+        if (!event.getInitiator().equals(initiator)) {
+            throw new ConfilctException("Событие - " + eventId + "не создана пользователем " + userId);
+        }
 
         log.debug("getEvent() возвращает: {}", event);
         return eventMapper.toEventFullDto(event, views.getOrDefault(eventId, 0L));
@@ -224,6 +258,13 @@ public class EventServiceImpl implements EventService {
             categoryRepository.findById(updateEventUserRequest.getCategory()).orElseThrow(
                 () -> new NotExistsExeption("Категории - " + updateEventUserRequest.getCategory() + " нет.")
             );
+
+        User initiator = userRepository.findById(userId).orElseThrow(
+            () -> new NotExistsExeption("Пользователя с " + userId + " нет."));
+
+        if (!existingEvent.getInitiator().equals(initiator)) {
+            throw new ConfilctException("Пользователь не является инициатором события");
+        }
         Event event = eventMapper.toEvent(updateEventUserRequest, category);
 
         Event eventToUpdate = existingEvent.toBuilder()
@@ -241,6 +282,11 @@ public class EventServiceImpl implements EventService {
             .title(event.getTitle() == null ? existingEvent.getTitle() : event.getTitle())
             .build();
         HashMap<Long, Long> views = statsClient.getMassStats(List.of(eventToUpdate));
+
+        if (eventToUpdate.getState().equals(EventState.PUBLISHED)) {
+            throw new ConfilctException("Опубликовать может только админ");
+        }
+
         Event updatedEvent = eventRepository.save(eventToUpdate);
 
         log.debug("updateEvent() обновлено: {}", updatedEvent);
@@ -284,22 +330,25 @@ public class EventServiceImpl implements EventService {
         List<EventRequest> requestsToUpdate = new ArrayList<>();
 
         for (EventRequest eventRequest : pendingRequests) {
-            if (Enum.valueOf(EventRequestStatus.class, eventRequestStatusUpdateRequest.getStatus()) ==
-                EventRequestStatus.CONFIRMED) {
+            if (eventRequestStatusUpdateRequest.getStatus().equals("CONFIRMED")) { // в спецификации - это именно строки
                 if (limit > 0 && confirmedRequests >= limit) {
-                    eventRequest.setStatus(EventRequestStatus.REJECTED);
+                    eventRequest.setStatus(EventRequestStatus.CANCELED);
                     requestsToUpdate.add(eventRequest);
                 } else {
                     eventRequest.setStatus(EventRequestStatus.CONFIRMED);
                     requestsToUpdate.add(eventRequest);
                     confirmedRequests++;
                 }
+            } else {
+                eventRequest.setStatus(EventRequestStatus.CANCELED);
+                requestsToUpdate.add(eventRequest);
             }
         }
 
         List<EventRequest> savedRequest = eventRequestRepository.saveAll(requestsToUpdate);
-
+        publisher.publishEvent(eventId);
         log.debug("updateRequestsStatus() обновленные заявки: {}", savedRequest);
+
         return eventRequestMapper.toEventRequestStatusUpdateResult(savedRequest);
     }
 }

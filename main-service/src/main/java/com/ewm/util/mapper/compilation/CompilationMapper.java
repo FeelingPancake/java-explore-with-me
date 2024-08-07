@@ -13,6 +13,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +34,9 @@ public interface CompilationMapper {
 
     @Named("mapIdsToEvents")
     default List<Event> mapIdsToEvents(List<Long> events, @Context EventRepository eventRepository) {
+        if (events == null || events.isEmpty()) {
+            return Collections.emptyList();
+        }
         return events.stream()
             .map(eventRepository::findById)
             .filter(Optional::isPresent)

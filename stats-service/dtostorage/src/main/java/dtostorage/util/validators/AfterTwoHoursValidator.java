@@ -13,7 +13,7 @@ public class AfterTwoHoursValidator implements ConstraintValidator<AfterTwoHours
     @Override
     public boolean isValid(LocalDateTime eventDate, ConstraintValidatorContext context) {
         if (eventDate == null) {
-            return false;
+            return true;
         }
         LocalDateTime nowPlusTwoHours = LocalDateTime.now().plusHours(2).plusMinutes(1);
         return eventDate.isAfter(nowPlusTwoHours);

@@ -1,5 +1,5 @@
 package com.ewm.util.enums;
 
 public enum EventRequestStatus {
-    PENDING, CONFIRMED, REJECTED
+    PENDING, CONFIRMED, CANCELED
 }

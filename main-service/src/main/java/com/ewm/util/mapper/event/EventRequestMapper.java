@@ -17,8 +17,12 @@ public interface EventRequestMapper {
 
     @Mapping(target = "requester", source = "eventRequest.requester.id")
     @Mapping(target = "event", source = "eventRequest.event.id")
-    @Mapping(target = "status", expression = "java(eventRequest.getStatus().toString())")
+    @Mapping(target = "status", source = "eventRequest.status")
     ParticipationRequestDto toParticipationRequestDto(EventRequest eventRequest);
+
+    default String mapStatus(EventRequestStatus status) {
+        return status.toString();
+    }
 
     default EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(List<EventRequest> eventRequests) {
         List<ParticipationRequestDto> confirmedRequests = eventRequests.stream()
@@ -27,8 +31,9 @@ public interface EventRequestMapper {
             .collect(Collectors.toList());
 
         List<ParticipationRequestDto> rejectedRequests = eventRequests.stream()
-            .filter(eventRequest -> eventRequest.getStatus() == EventRequestStatus.REJECTED)
+            .filter(eventRequest -> eventRequest.getStatus() == EventRequestStatus.CANCELED)
             .map(this::toParticipationRequestDto)
+            .peek(dto -> dto.setStatus("REJECTED"))
             .collect(Collectors.toList());
 
         return EventRequestStatusUpdateResult.builder()

@@ -14,6 +14,6 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventRequestStatusUpdateRequest {
-    ArrayList<Integer> ids;
+    ArrayList<Integer> requestIds;
     String status;
 }

@@ -2,7 +2,6 @@ package com.ewm.util.aspect;
 
 import com.ewm.util.stats.StatsClient;
 import dtostorage.main.event.EventFullDto;
-import dtostorage.main.event.EventShortDto;
 import dtostorage.stats.MetricCreateDto;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -29,19 +28,20 @@ public class StatsAspect {
     }
 
 
-    @Pointcut("execution(* com.ewm.controller.publicController.EventPublicController.getEvent(..))")
+    @Pointcut("execution(* com.ewm.controller.publicController.EventPublicController.getEventForPublic(..))")
     public void statsEvent() {
     }
 
 
     @Around("statsEvents()")
     public Object sendStatsEvents(ProceedingJoinPoint joinPoint) throws Throwable {
+        System.out.println("StatsAspect: sendStatsEvents called");
         String ip = request.getRemoteAddr();
         LocalDateTime time = LocalDateTime.now();
         Object result = joinPoint.proceed();
-        List<EventShortDto> events = (List<EventShortDto>) result;
+        List<EventFullDto> events = (List<EventFullDto>) result;
 
-        for (EventShortDto event : events) {
+        for (EventFullDto event : events) {
             MetricCreateDto metricCreateDto = MetricCreateDto.builder()
                 .app(appName).ip(ip).uri(prefix + event.getId()).timestamp(time).build();
             statsHttpClient.createHit(metricCreateDto);
@@ -56,6 +56,7 @@ public class StatsAspect {
 
     @Around("statsEvent()")
     public Object sendStatsEvent(ProceedingJoinPoint joinPoint) throws Throwable {
+        System.out.println("StatsAspect: sendStatsEvent called");
         String ip = request.getRemoteAddr();
         LocalDateTime time = LocalDateTime.now();
         Object result = joinPoint.proceed();

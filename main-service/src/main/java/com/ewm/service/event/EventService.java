@@ -3,7 +3,6 @@ package com.ewm.service.event;
 import com.ewm.util.enums.EventState;
 import com.ewm.util.enums.SortEvent;
 import dtostorage.main.event.EventFullDto;
-import dtostorage.main.event.EventShortDto;
 import dtostorage.main.event.NewEventDto;
 import dtostorage.main.event.UpdateEventAdminRequest;
 import dtostorage.main.event.UpdateEventUserRequest;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
-    List<EventShortDto> getEvents(Long userId, Integer from, Integer size);
+    List<EventFullDto> getEvents(Long userId, Integer from, Integer size);
 
     EventFullDto updateEventForAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 
@@ -27,7 +26,7 @@ public interface EventService {
                                          Integer from,
                                          Integer size);
 
-    List<EventShortDto> getEventsForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
+    List<EventFullDto> getEventsForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvent sortEvent,
                                            Integer from, Integer size);
 

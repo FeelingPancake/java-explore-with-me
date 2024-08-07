@@ -46,6 +46,10 @@ public interface EventMapper {
 
     @Named("stateFromString")
     default EventState stateFromString(String stateAction) {
+        if (stateAction == null) {
+            return null;
+        }
+
         switch (stateAction) {
             case "SEND_TO_REVIEW":
                 return EventState.PENDING;
@@ -55,7 +59,7 @@ public interface EventMapper {
             case "PUBLISH_EVENT":
                 return EventState.PUBLISHED;
             default:
-                throw new IllegalArgumentException("Unknown state action: " + stateAction);
+                return null;
         }
     }
 }

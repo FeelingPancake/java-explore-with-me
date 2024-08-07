@@ -6,7 +6,7 @@ import dtostorage.main.user.UserDto;
 import java.util.List;
 
 public interface UserService {
-    List<UserDto> getUsers(Long[] ids, Integer from, Integer size);
+    List<UserDto> getUsers(List<Long> ids, Integer from, Integer size);
 
     UserDto createUser(NewUserRequest newUserRequest);
 

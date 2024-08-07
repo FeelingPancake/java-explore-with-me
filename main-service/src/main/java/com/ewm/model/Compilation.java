@@ -12,7 +12,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,6 +38,8 @@ public class Compilation {
 
     @PrePersist
     protected void onCreate() {
-        pinned = false;
+        if (pinned == null) {
+            pinned = false;
+        }
     }
 }

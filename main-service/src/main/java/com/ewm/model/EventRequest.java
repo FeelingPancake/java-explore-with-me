@@ -34,12 +34,14 @@ public class EventRequest {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     EventRequestStatus status;
-    @Column(name = "created_on")
+    @Column(name = "created_at")
     LocalDateTime created;
 
     @PrePersist
     protected void onCreate() {
-        status = EventRequestStatus.PENDING;
+        if (this.status == null) {
+            this.status = EventRequestStatus.PENDING;
+        }
     }
 }
 

@@ -2,6 +2,7 @@ package dtostorage.main.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dtostorage.main.Location;
+import dtostorage.util.validators.AfterTwoHours;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class UpdateEventUserRequest {
     @Size(min = 20, max = 7000)
     String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @AfterTwoHours
     LocalDateTime eventDate;
     Location location;
     Boolean paid;

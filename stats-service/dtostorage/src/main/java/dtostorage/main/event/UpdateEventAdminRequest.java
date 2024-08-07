@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class UpdateEventAdminRequest {
     @Size(min = 20, max = 7000)
     String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Future
     LocalDateTime eventDate;
     Location location;
     Boolean paid;

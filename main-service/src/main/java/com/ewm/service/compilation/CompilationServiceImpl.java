@@ -48,8 +48,15 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation existCompilation = compilationRepository.findById(compId).orElseThrow(() ->
             new NotExistsExeption("Подборки - " + compId + " нет."));
 
-        Compilation updateCompilation =
+        Compilation templateCompilation =
             compilationMapper.toCompilation(compId, updateCompilationRequest, eventRepository);
+
+        Compilation updateCompilation = templateCompilation.toBuilder()
+            .title(
+                templateCompilation.getTitle() == null ? existCompilation.getTitle() : templateCompilation.getTitle())
+            .pinned(templateCompilation.getPinned() == null ? existCompilation.getPinned() :
+                templateCompilation.getPinned())
+            .build();
 
         return compilationMapper.toCompilationDto(compilationRepository.save(updateCompilation));
     }

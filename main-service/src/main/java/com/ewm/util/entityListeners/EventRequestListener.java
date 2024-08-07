@@ -1,36 +1,28 @@
 package com.ewm.util.entityListeners;
 
+import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Event;
-import com.ewm.model.EventRequest;
 import com.ewm.repository.EventRepository;
 import com.ewm.repository.EventRequestRepository;
 import com.ewm.util.enums.EventRequestStatus;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
-
-@Transactional
+@Component
+@RequiredArgsConstructor
 public class EventRequestListener {
-
     private final EventRepository eventRepository;
     private final EventRequestRepository eventRequestRepository;
 
-    public EventRequestListener(EventRepository eventRepository, EventRequestRepository eventRequestRepository) {
-        this.eventRepository = eventRepository;
-        this.eventRequestRepository = eventRequestRepository;
-    }
+    @EventListener
+    public void handleEventRequestUpdate(Long eventId) {
+        Long confirmedCount = eventRequestRepository.countByEventIdAndStatus(eventId, EventRequestStatus.CONFIRMED);
+        Event eventEntity = eventRepository.findById(eventId).orElseThrow(() ->
+            new NotExistsExeption("События - " + eventId.toString() + " нет."));
 
-    @PostPersist
-    @PostUpdate
-    @PostRemove
-    public void updateConfirmedRequests(EventRequest eventRequest) {
-        Event event = eventRequest.getEvent();
-        Long confirmedCount =
-            eventRequestRepository.countByEventIdAndStatus(event.getId(), EventRequestStatus.CONFIRMED);
-        event.setConfirmedRequests(confirmedCount);
-        eventRepository.save(event);
+        eventEntity.setConfirmedRequests(confirmedCount);
+        eventRepository.save(eventEntity);
     }
 }
 

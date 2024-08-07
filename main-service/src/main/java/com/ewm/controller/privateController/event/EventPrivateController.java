@@ -2,13 +2,13 @@ package com.ewm.controller.privateController.event;
 
 import com.ewm.service.event.EventService;
 import dtostorage.main.event.EventFullDto;
-import dtostorage.main.event.EventShortDto;
 import dtostorage.main.event.NewEventDto;
 import dtostorage.main.event.UpdateEventUserRequest;
 import dtostorage.main.eventRequest.EventRequestStatusUpdateRequest;
 import dtostorage.main.eventRequest.EventRequestStatusUpdateResult;
 import dtostorage.main.eventRequest.ParticipationRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -31,13 +32,14 @@ public class EventPrivateController {
     private final EventService eventService;
 
     @GetMapping("/{userId}/events")
-    public List<EventShortDto> getEvents(@PathVariable(name = "userId") Long userId,
-                                         @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                         @RequestParam(name = "size", defaultValue = "10") Integer size) {
+    public List<EventFullDto> getEvents(@PathVariable(name = "userId") Long userId,
+                                        @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                        @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return eventService.getEvents(userId, from, size);
     }
 
     @PostMapping("/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable(name = "userId") Long userId,
                                     @RequestBody @Valid @NotNull NewEventDto newEventDto) {
 

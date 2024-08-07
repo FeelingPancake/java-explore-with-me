@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -29,9 +30,7 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         List<Predicate> predicates = new ArrayList<>();
 
         if (users != null && users.length > 0) {
-            if (!(users.length == 1 && users[0] == 0)) {
-                predicates.add(root.get("initiator").in((Object[]) users));
-            }
+            predicates.add(root.get("initiator").in((Object[]) users));
         }
 
         if (states != null && states.length > 0) {
@@ -39,9 +38,7 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         }
 
         if (categories != null && categories.length > 0) {
-            if (!(categories.length == 1 && categories[0] == 0)) {
-                predicates.add(root.get("category").in((Object[]) categories));
-            }
+            predicates.add(root.get("category").in((Object[]) categories));
         }
 
         if (rangeStart != null) {
@@ -54,8 +51,12 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
 
         query.where(cb.and(predicates.toArray(new Predicate[0])));
         query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, cb));
+        TypedQuery<Event> resultQuery = entityManager.createQuery(query);
 
-        return entityManager.createQuery(query).getResultList();
+        resultQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+        resultQuery.setMaxResults(pageable.getPageSize());
+
+        return resultQuery.getResultList();
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (text != null && !text.isBlank() && !text.equals("0")) {
+        if (text != null && !text.isBlank()) {
             predicates.add(cb.or(
                 cb.like(cb.lower(root.get("description")), "%" + text.toLowerCase() + "%"),
                 cb.like(cb.lower(root.get("annotation")), "%" + text.toLowerCase() + "%")
@@ -76,9 +77,7 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         }
 
         if (categories != null && categories.length > 0) {
-            if (!(categories.length == 1 && categories[0] == 0)) {
-                predicates.add(root.get("category").in((Object[]) categories));
-            }
+            predicates.add(root.get("category").in((Object[]) categories));
         }
 
         if (paid != null) {
@@ -107,7 +106,12 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         query.where(cb.and(predicates.toArray(new Predicate[0])));
         query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, cb));
 
-        return entityManager.createQuery(query).getResultList();
+        TypedQuery<Event> resultQuery = entityManager.createQuery(query);
+
+        resultQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+        resultQuery.setMaxResults(pageable.getPageSize());
+
+        return resultQuery.getResultList();
     }
 
 
