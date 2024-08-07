@@ -57,6 +57,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEvents(Long userId, Integer from, Integer size) {
         log.debug("Вызов getEvents() с параметрами userId: {}, from: {}, size: {}", userId, from, size);
 
@@ -76,6 +77,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventsForPublic(String text, Long[] categories, Boolean paid,
                                                   LocalDateTime rangeStart,
                                                   LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvent sort,
@@ -116,6 +118,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventsForAdmin(Long[] users, EventState[] states, Long[] categories,
                                                 LocalDateTime rangeStart,
                                                 LocalDateTime rangeEnd, Integer from, Integer size) {
@@ -216,6 +219,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEvent(Long userId, Long eventId) {
         log.debug("Вызов getEvent() с параметрами userId: {}, eventId: {}", userId, eventId);
 
@@ -234,6 +238,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventForPublic(Long eventId) {
         log.debug("Вызов getEventForPublic() с параметрами eventId: {}", eventId);
 
@@ -294,6 +299,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequest(Long userId, Long eventId) {
         log.debug("Вызов getRequest() с параметрами userId: {}, eventId: {}", userId, eventId);
 

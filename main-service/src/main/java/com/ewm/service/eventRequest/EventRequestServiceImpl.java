@@ -34,6 +34,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     private final EventRequestMapper eventRequestMapper = EventRequestMapper.INSTANCE;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequests(Long userId) {
         List<EventRequest> event = eventRequestRepository.findByRequesterId(userId);
 
@@ -112,6 +113,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventRequest> getEventRequest(Long eventId, EventRequestStatus status) {
 
         return eventRequestRepository.findByEventIdAndStatus(eventId, status);

@@ -27,6 +27,7 @@ public interface EventMapper {
     @Mapping(target = "participantLimit", expression = "java(newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit())")
     @Mapping(target = "requestModeration", expression = "java(newEventDto.getRequestModeration() == null || newEventDto.getRequestModeration())")
     @Mapping(target = "category", source = "category")
+    @Mapping(target = "id", ignore = true)
     Event toEvent(NewEventDto newEventDto, Category category);
 
     @Mapping(target = "views", source = "views")
@@ -37,11 +38,13 @@ public interface EventMapper {
     @Mapping(target = "category", source = "category")
     @Mapping(target = "state", source = "updateEventUserRequest.stateAction", qualifiedByName = "stateFromString")
     @Mapping(target = "location", expression = "java(updateEventUserRequest.getLocation() != null ? new Point(updateEventUserRequest.getLocation().getLat(), updateEventUserRequest.getLocation().getLon()) : null)")
+    @Mapping(target = "id", ignore = true)
     Event toEvent(UpdateEventUserRequest updateEventUserRequest, Category category);
 
     @Mapping(target = "state", source = "updateEventAdminRequest.stateAction", qualifiedByName = "stateFromString")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "location", expression = "java(updateEventAdminRequest.getLocation() != null ? new Point(updateEventAdminRequest.getLocation().getLat(), updateEventAdminRequest.getLocation().getLon()) : null)")
+    @Mapping(target = "id", ignore = true)
     Event toEvent(UpdateEventAdminRequest updateEventAdminRequest, Category category);
 
     @Named("stateFromString")
