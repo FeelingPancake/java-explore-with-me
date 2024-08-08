@@ -18,8 +18,8 @@ import java.util.List;
 @Aspect
 @RequiredArgsConstructor
 public class StatsAspect {
-    private static final String appName = "ewm";
-    private static final String prefix = "/event/";
+    private static final String appName = "ewm-main-service";
+    private static final String prefix = "/events/";
     private final StatsClient statsHttpClient;
     private final HttpServletRequest request;
 
