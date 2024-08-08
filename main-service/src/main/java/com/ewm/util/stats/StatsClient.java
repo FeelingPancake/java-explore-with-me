@@ -23,7 +23,7 @@ public class StatsClient {
         log.debug("Получить статистику для events - {}", events);
         HashMap<Long, Long> metricSummaryDtoHashMap = new HashMap<>();
         if (!events.isEmpty()) {
-            String[] uris = events.stream().map(event -> "/event/" + event.getId()).toArray(String[]::new);
+            String[] uris = events.stream().map(event -> "/events/" + event.getId()).toArray(String[]::new);
             LocalDateTime created = events.stream().min(Comparator.comparing(Event::getCreatedOn)).get().getCreatedOn();
             List<MetricSummaryDto> metricSummaryDtos =
                 statsHttpClient.getStats(created, LocalDateTime.now(), uris, true);
