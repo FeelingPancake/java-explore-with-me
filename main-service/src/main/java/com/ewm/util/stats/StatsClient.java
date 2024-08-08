@@ -32,7 +32,7 @@ public class StatsClient {
 
             if (metricSummaryDtos != null && !metricSummaryDtos.isEmpty()) {
                 for (MetricSummaryDto metricSummaryDto : metricSummaryDtos) {
-                    Long key = Long.parseLong(metricSummaryDto.getUri().replace("/event/", ""));
+                    Long key = Long.parseLong(metricSummaryDto.getUri().replace("/events/", ""));
                     metricSummaryDtoHashMap.put(key, metricSummaryDto.getHits());
                 }
             }
