@@ -48,6 +48,11 @@ public class StatsController {
                                         Boolean unique) {
         LocalDateTime startDate = LocalDateTimeCoder.decodeDate(start);
         LocalDateTime endDate = LocalDateTimeCoder.decodeDate(end);
+
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("startDate должно быть больше endDate");
+        }
+
         log.debug("Декодированные строки - start : {}. end {}", start, end);
 
         return statsService.getStats(uris, startDate, endDate, unique);

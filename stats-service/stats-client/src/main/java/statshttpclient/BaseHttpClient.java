@@ -1,5 +1,6 @@
 package statshttpclient;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,6 +51,24 @@ public class BaseHttpClient {
         return prepareResponse(statsServiceResponse);
     }
 
+    private <T> ResponseEntity<T> makeAndSendRequest(HttpMethod method, String path,
+                                                     @Nullable Map<String, Object> parameters, @Nullable Object body,
+                                                     ParameterizedTypeReference<T> responseType) {
+        HttpEntity<Object> requestEntity = new HttpEntity<>(body, defaultHeaders());
+
+        ResponseEntity<T> statsServiceResponse;
+        try {
+            if (parameters != null) {
+                statsServiceResponse = rest.exchange(path, method, requestEntity, responseType, parameters);
+            } else {
+                statsServiceResponse = rest.exchange(path, method, requestEntity, responseType);
+            }
+        } catch (HttpStatusCodeException e) {
+            throw new RuntimeException("Failed to get response from stats service", e);
+        }
+        return statsServiceResponse;
+    }
+
     private HttpHeaders defaultHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -67,5 +86,10 @@ public class BaseHttpClient {
 
     protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
+    }
+
+    protected <T> ResponseEntity<T> get(String path, @Nullable Map<String, Object> parameters,
+                                        ParameterizedTypeReference<T> responseType) {
+        return makeAndSendRequest(HttpMethod.GET, path, parameters, null, responseType);
     }
 }
