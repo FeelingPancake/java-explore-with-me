@@ -27,7 +27,7 @@ public class Compilation {
     @Column(name = "title", unique = true, nullable = false)
     String title;
     @Column(name = "pinned")
-    Boolean pinned = false;
+    boolean pinned;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "compilation_events",
@@ -35,11 +35,4 @@ public class Compilation {
         inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     List<Event> events;
-
-    @PrePersist
-    protected void onCreate() {
-        if (pinned == null) {
-            pinned = false;
-        }
-    }
 }

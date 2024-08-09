@@ -3,9 +3,9 @@ package com.ewm.controller.adminController.categories;
 import com.ewm.service.category.CategoryService;
 import dtostorage.main.category.CategoryDto;
 import dtostorage.main.category.NewCategoryDto;
+import dtostorage.main.category.UpdateCategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +20,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/admin/categories")
 @RequiredArgsConstructor
-@Validated
 public class CategoriesAdminController {
     private final CategoryService categoryService;
 
@@ -38,7 +37,7 @@ public class CategoriesAdminController {
 
     @PatchMapping("/{catId}")
     public CategoryDto updateCategory(@PathVariable(name = "catId") Long catId,
-                                      @RequestBody @Valid NewCategoryDto newCategoryDto) {
-        return categoryService.updateCategory(catId, newCategoryDto);
+                                      @RequestBody @Valid UpdateCategoryDto updateCategoryDto) {
+        return categoryService.updateCategory(catId, updateCategoryDto);
     }
 }

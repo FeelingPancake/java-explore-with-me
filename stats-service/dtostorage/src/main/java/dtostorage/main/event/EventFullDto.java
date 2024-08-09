@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import dtostorage.main.Location;
 import dtostorage.main.category.CategoryDto;
 import dtostorage.main.user.UserShortDto;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventFullDto {
     String annotation;
     CategoryDto category;

@@ -62,7 +62,7 @@ public class EventRequestServiceImpl implements EventRequestService {
             throw new ConfilctException("Запрос уже существует");
         }
 
-        if (event.getState().equals(EventState.PENDING)) {
+        if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConfilctException("Событие ещё не опубликовано");
         }
 

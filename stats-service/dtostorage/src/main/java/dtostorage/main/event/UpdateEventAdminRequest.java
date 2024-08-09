@@ -3,10 +3,12 @@ package dtostorage.main.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dtostorage.main.Location;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.Future;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateEventAdminRequest {
     @Size(min = 20, max = 2000)
     String annotation;

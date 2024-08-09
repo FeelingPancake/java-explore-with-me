@@ -49,16 +49,10 @@ public class CompilationServiceImpl implements CompilationService {
             new NotExistsExeption("Подборки - " + compId + " нет."));
 
         Compilation templateCompilation =
-            compilationMapper.toCompilation(compId, updateCompilationRequest, eventRepository);
+            compilationMapper.toCompilation(compId, updateCompilationRequest, existCompilation, eventRepository);
 
-        Compilation updateCompilation = templateCompilation.toBuilder()
-            .title(
-                templateCompilation.getTitle() == null ? existCompilation.getTitle() : templateCompilation.getTitle())
-            .pinned(templateCompilation.getPinned() == null ? existCompilation.getPinned() :
-                templateCompilation.getPinned())
-            .build();
 
-        return compilationMapper.toCompilationDto(compilationRepository.save(updateCompilation));
+        return compilationMapper.toCompilationDto(compilationRepository.save(templateCompilation));
     }
 
     @Override

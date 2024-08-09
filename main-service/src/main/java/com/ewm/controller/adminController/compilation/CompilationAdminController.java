@@ -6,7 +6,6 @@ import dtostorage.main.compilation.NewCompilationDto;
 import dtostorage.main.compilation.UpdateCompilationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,6 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/admin/compilations")
 @RequiredArgsConstructor
-@Validated
 public class CompilationAdminController {
     private final CompilationService compilationService;
 

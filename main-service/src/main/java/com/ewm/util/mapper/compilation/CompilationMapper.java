@@ -24,7 +24,9 @@ public interface CompilationMapper {
 
     @Mapping(target = "id", source = "compId")
     @Mapping(target = "events", source = "updateCompilationRequest.events", qualifiedByName = "mapIdsToEvents")
-    Compilation toCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest,
+    @Mapping(target = "pinned", expression = "java(updateCompilationRequest.getPinned() == null ? compilation.isPinned() : updateCompilationRequest.getPinned())")
+    @Mapping(target = "title", expression = "java(updateCompilationRequest.getTitle() == null ? compilation.getTitle() : updateCompilationRequest.getTitle())")
+    Compilation toCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest, Compilation compilation,
                               @Context EventRepository eventRepository);
 
     @Mapping(target = "events", source = "newCompilationDto.events", qualifiedByName = "mapIdsToEvents")
