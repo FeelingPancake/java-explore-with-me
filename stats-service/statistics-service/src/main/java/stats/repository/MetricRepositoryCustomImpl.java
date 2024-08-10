@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
@@ -35,14 +36,14 @@ public class MetricRepositoryCustomImpl implements MetricRepositoryCustom {
 
         query.groupBy(root.get("app"), root.get("uri"));
 
-        query.multiselect(
-            root.get("app"),
-            root.get("uri"),
-            unique ? cb.countDistinct(root.get("ip")) : cb.count(root.get("ip"))
-        );
-
         query.where(cb.and(predicates.toArray(new Predicate[0])));
-        query.orderBy(cb.desc(unique ? cb.countDistinct(root.get("ip")) : cb.count(root.get("ip"))));
+
+        query.groupBy(root.get("app"), root.get("uri"));
+
+        Expression<Long> countExpression = unique ? cb.countDistinct(root.get("ip")) : cb.count(root.get("ip"));
+        query.select(cb.construct(MetricSummary.class, root.get("app"), root.get("uri"), countExpression));
+
+        query.orderBy(cb.desc(countExpression));
 
         return entityManager.createQuery(query).getResultList();
     }
