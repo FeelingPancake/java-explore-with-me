@@ -29,7 +29,7 @@ public class EventRequestPrivateController {
         return eventRequestService.getEventRequests(userId);
     }
 
-    @PostMapping("/{userId}/requests.")
+    @PostMapping("/{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createParticipationRequest(@PathVariable(name = "userId") Long userId,
                                                               @RequestParam(name = "eventId") Long eventId) {
