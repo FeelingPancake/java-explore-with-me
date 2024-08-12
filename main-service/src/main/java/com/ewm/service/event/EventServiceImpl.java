@@ -91,7 +91,7 @@ public class EventServiceImpl implements EventService {
 
         Pageable pageable = createPageable(from, size);
 
-        Location location = locationRepository.findById(locationId).orElseThrow(
+        Location location = locationId == null ? null : locationRepository.findById(locationId).orElseThrow(
             () -> new NotExistsExeption("Локации с " + locationId + " нет")
         );
         log.debug("getEventsForPublic Получен локация - {}", location);
@@ -126,7 +126,7 @@ public class EventServiceImpl implements EventService {
 
         log.debug("Pageable - {}", pageable);
 
-        Location location = locationRepository.findById(locationId).orElseThrow(
+        Location location = locationId == null ? null : locationRepository.findById(locationId).orElseThrow(
             () -> new NotExistsExeption("Локации с " + locationId + " нет")
         );
         log.debug("getEventsForAdminПолучен локация - {}", location);
