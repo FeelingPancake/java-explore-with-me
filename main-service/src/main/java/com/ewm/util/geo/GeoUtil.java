@@ -2,30 +2,25 @@ package com.ewm.util.geo;
 
 import com.ewm.model.Location;
 
-import java.util.Map;
-
 public abstract class GeoUtil {
     private static final double EARTH_RADIUS = 6371e3;
 
-    public static Map<String, Double> getBoundingBox(Location location) {
-        double latRadians = Math.toRadians(location.getLatitude());
-        double radius = location.getRadius();
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+    public static boolean isWithinRadius(double eventLatitude, double eventLongitude, Location location) {
+        double lat1 = Math.toRadians(location.getLatitude());
+        double lon1 = Math.toRadians(location.getLongitude());
+        double lat2 = Math.toRadians(eventLatitude);
+        double lon2 = Math.toRadians(eventLongitude);
 
-        double latDelta = Math.toDegrees(radius / EARTH_RADIUS);
-        double lonDelta = Math.toDegrees(radius / EARTH_RADIUS * Math.cos(latRadians));
+        double dlat = lat2 - lat1;
+        double dlon = lon2 - lon1;
 
-        double minLat = latitude - latDelta;
-        double maxLat = latitude + latDelta;
-        double minLon = longitude - lonDelta;
-        double maxLon = longitude + lonDelta;
+        double a = Math.sin(dlat / 2) * Math.sin(dlat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+                Math.sin(dlon / 2) * Math.sin(dlon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return Map.of(
-            "minLatitude", minLat,
-            "maxLatitude", maxLat,
-            "minLongitude", minLon,
-            "maxLongitude", maxLon
-        );
+        double distance = EARTH_RADIUS * c;
+
+        return distance <= location.getRadius();
     }
 }

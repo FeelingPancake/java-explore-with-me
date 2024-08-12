@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS events (
     title VARCHAR(120) NOT NULL UNIQUE,
     annotation VARCHAR(2000),
     description TEXT,
-    location_x NUMERIC,
-    location_y NUMERIC,
+    location_x DECIMAL(18, 15),
+    location_y DECIMAL(18, 15),
     event_limit INTEGER NOT NULL DEFAULT 0,
     request_moderation BOOLEAN DEFAULT TRUE,
     paid BOOLEAN NOT NULL,
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS compilation_events (
 CREATE TABLE IF NOT EXISTS locations (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    latitude NUMERIC NOT NULL,
-    longitude NUMERIC NOT NULL,
+    latitude DECIMAL(18, 15) NOT NULL,
+    longitude DECIMAL(18, 15) NOT NULL,
     radius NUMERIC NOT NULL
 );
 

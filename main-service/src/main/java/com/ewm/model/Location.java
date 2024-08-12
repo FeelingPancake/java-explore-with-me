@@ -20,7 +20,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "events")
+@Table(name = "locations")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Location {
     @Id

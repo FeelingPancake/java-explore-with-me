@@ -15,7 +15,6 @@ import com.ewm.repository.UserRepository;
 import com.ewm.util.enums.EventRequestStatus;
 import com.ewm.util.enums.EventState;
 import com.ewm.util.enums.SortEvent;
-import com.ewm.util.geo.GeoUtil;
 import com.ewm.util.mapper.event.EventMapper;
 import com.ewm.util.mapper.event.EventRequestMapper;
 import com.ewm.util.stats.StatsClient;
@@ -41,7 +40,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,11 +91,13 @@ public class EventServiceImpl implements EventService {
 
         Pageable pageable = createPageable(from, size);
 
-        Map<String, Double> boundingBox = getBoundingBoxForLocation(locationId);
-        log.debug("getEventForPublic - Получен диапазон - {}", boundingBox);
+        Location location = locationRepository.findById(locationId).orElseThrow(
+            () -> new NotExistsExeption("Локации с " + locationId + " нет")
+        );
+        log.debug("getEventsForPublic Получен локация - {}", location);
 
         List<Event> events =
-            eventRepository.getEventForPublic(text, categories, paid, rangeStart, rangeEnd, boundingBox, onlyAvailable,
+            eventRepository.getEventForPublic(text, categories, paid, rangeStart, rangeEnd, location, onlyAvailable,
                 pageable);
 
         log.debug("getEventsForPublic() возвращает: {}", events);
@@ -126,11 +126,13 @@ public class EventServiceImpl implements EventService {
 
         log.debug("Pageable - {}", pageable);
 
-        Map<String, Double> boundingBox = getBoundingBoxForLocation(locationId);
-        log.debug("getEventsForAdminПолучен диапазон - {}", boundingBox);
+        Location location = locationRepository.findById(locationId).orElseThrow(
+            () -> new NotExistsExeption("Локации с " + locationId + " нет")
+        );
+        log.debug("getEventsForAdminПолучен локация - {}", location);
 
         List<Event> events =
-            eventRepository.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, boundingBox, pageable);
+            eventRepository.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, location, pageable);
 
         log.debug("Events -: {}", events);
 
@@ -331,18 +333,6 @@ public class EventServiceImpl implements EventService {
     private Pageable createPageable(Integer from, Integer size) {
         int page = from / size;
         return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
-    }
-
-    private Map<String, Double> getBoundingBoxForLocation(Long locationId) {
-        if (locationId == null) {
-            return null;
-        }
-
-        Location location = locationRepository.findById(locationId).orElseThrow(
-            () -> new NotExistsExeption("Локации с ID " + locationId + " не существует")
-        );
-
-        return GeoUtil.getBoundingBox(location);
     }
 
     private Comparator<EventFullDto> getComparator(SortEvent sort) {
