@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "d56c3258-88e3-421e-ac6f-714601e167e8",
 		"name": "Test Locations Functionality",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "32048189"
 	},
 	"item": [
@@ -105,7 +105,16 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/admin/locations",
+						"url": {
+							"raw": "{{baseUrl}}/admin/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"locations"
+							]
+						},
 						"description": "Создание новой локации с именем и координатами (широта, долгота)."
 					},
 					"response": []
@@ -185,7 +194,16 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/admin/locations"
+						"url": {
+							"raw": "{{baseUrl}}/admin/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"locations"
+							]
+						}
 					},
 					"response": []
 				},
@@ -262,7 +280,16 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/admin/locations"
+						"url": {
+							"raw": "{{baseUrl}}/admin/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"locations"
+							]
+						}
 					},
 					"response": []
 				},
@@ -339,7 +366,16 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/admin/locations"
+						"url": {
+							"raw": "{{baseUrl}}/admin/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"locations"
+							]
+						}
 					},
 					"response": []
 				},
@@ -475,7 +511,16 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{baseUrl}}/admin/locations"
+						"url": {
+							"raw": "{{baseUrl}}/admin/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"locations"
+							]
+						}
 					},
 					"response": []
 				},
@@ -835,7 +880,7 @@
 							"variable": [
 								{
 									"key": "locId",
-									"value": "{{updLocid}}"
+									"value": "{{updLocId}}"
 								}
 							]
 						}
