@@ -11,7 +11,8 @@ import statshttpclient.StatsHttpClient;
 public class StatsClientConfig {
 
     @Bean
-    public StatsHttpClient statsHttpClient(@Value("${stats-service.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsHttpClient statsHttpClient(@Value("${stats-service.url}") String serverUrl,
+                                           RestTemplateBuilder builder) {
         return new StatsHttpClient(serverUrl, builder);
     }
 }

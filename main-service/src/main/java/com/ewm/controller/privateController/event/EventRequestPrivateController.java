@@ -40,7 +40,6 @@ public class EventRequestPrivateController {
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
     public ParticipationRequestDto cancelParticipationRequest(@PathVariable(name = "userId") Long userId,
                                                               @PathVariable(name = "requestId") Long requestId) {
-        // Можно ли отменить уже отмененной событие или сделать запрос на участие на уже отмененное событие???
         return eventRequestService.cancelEventRequest(userId, requestId);
     }
 

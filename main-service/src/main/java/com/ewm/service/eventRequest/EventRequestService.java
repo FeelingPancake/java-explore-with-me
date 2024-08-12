@@ -7,7 +7,7 @@ import dtostorage.main.eventRequest.ParticipationRequestDto;
 import java.util.List;
 
 public interface EventRequestService {
-    List<ParticipationRequestDto>  getEventRequests(Long userId);
+    List<ParticipationRequestDto> getEventRequests(Long userId);
 
     ParticipationRequestDto createEventRequest(Long userId, Long eventId);
 

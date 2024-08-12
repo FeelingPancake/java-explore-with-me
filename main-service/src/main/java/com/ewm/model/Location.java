@@ -15,20 +15,24 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "events")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+public class Location {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-    @Column(name = "name", nullable = false)
+    Long id;
+    @Column(name = "name", unique = true, nullable = false)
     String name;
-    @Column(name = "email", nullable = false, unique = true)
-    String email;
+    @Column(name = "latitude", nullable = false)
+    Double latitude;
+    @Column(name = "longitude", nullable = false)
+    Double longitude;
+    @Column(name = "radius", nullable = false)
+    Double radius;
 }

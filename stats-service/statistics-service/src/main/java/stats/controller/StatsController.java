@@ -2,6 +2,9 @@ package stats.controller;
 
 import dtostorage.stats.MetricCreateDto;
 import dtostorage.util.LocalDateTimeCoder;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,9 +21,6 @@ import stats.model.MetricSummary;
 import stats.service.StatsServiceImpl;
 import stats.util.DtoMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 

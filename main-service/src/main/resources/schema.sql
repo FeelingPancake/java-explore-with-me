@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS participation_requests;
+DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS compilation_events;
 DROP TABLE IF EXISTS compilations;
 DROP TABLE IF EXISTS events;
@@ -7,20 +8,20 @@ DROP TABLE IF EXISTS users;
 
 -- Пользователи
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL
 );
 
 -- Категории
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- События
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title VARCHAR(120) NOT NULL UNIQUE,
     annotation VARCHAR(2000),
@@ -40,7 +41,7 @@ CREATE TABLE events (
 );
 
 -- Компиляции
-CREATE TABLE compilations (
+CREATE TABLE IF NOT EXISTS compilations (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title VARCHAR(255) NOT NULL UNIQUE,
     pinned BOOLEAN DEFAULT FALSE,
@@ -48,7 +49,7 @@ CREATE TABLE compilations (
 );
 
 -- Запросы на участие
-CREATE TABLE participation_requests (
+CREATE TABLE IF NOT EXISTS participation_requests (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_id BIGINT REFERENCES users(id),
     event_id BIGINT REFERENCES events(id),
@@ -56,12 +57,20 @@ CREATE TABLE participation_requests (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE compilation_events (
+CREATE TABLE IF NOT EXISTS compilation_events (
     compilation_id BIGINT NOT NULL,
     event_id BIGINT NOT NULL,
     PRIMARY KEY (compilation_id, event_id),
     FOREIGN KEY (compilation_id) REFERENCES compilations(id),
     FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE IF NOT EXISTS locations (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    latitude NUMERIC NOT NULL,
+    longitude NUMERIC NOT NULL,
+    radius NUMERIC NOT NULL
 );
 
 CREATE INDEX idx_event_category ON events(category_id);

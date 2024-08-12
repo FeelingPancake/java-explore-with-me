@@ -1,8 +1,9 @@
 package dtostorage.main.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dtostorage.main.Location;
 import dtostorage.util.validators.AfterTwoHours;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Jacksonized
@@ -30,7 +29,7 @@ public class UpdateEventUserRequest {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @AfterTwoHours
     LocalDateTime eventDate;
-    Location location;
+    EventLocation location;
     Boolean paid;
     @PositiveOrZero
     Integer participantLimit;

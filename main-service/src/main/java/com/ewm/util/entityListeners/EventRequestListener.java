@@ -19,7 +19,7 @@ public class EventRequestListener {
     public void handleEventRequestUpdate(Long eventId) {
         Long confirmedCount = eventRequestRepository.countByEventIdAndStatus(eventId, EventRequestStatus.CONFIRMED);
         Event eventEntity = eventRepository.findById(eventId).orElseThrow(() ->
-            new NotExistsExeption("События - " + eventId.toString() + " нет."));
+            new NotExistsExeption("События - " + eventId + " нет."));
 
         eventEntity.setConfirmedRequests(confirmedCount);
         eventRepository.save(eventEntity);

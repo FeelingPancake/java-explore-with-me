@@ -3,6 +3,7 @@ package statshttpclient;
 import dtostorage.stats.MetricCreateDto;
 import dtostorage.stats.MetricSummaryDto;
 import dtostorage.util.LocalDateTimeCoder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -23,7 +24,7 @@ public class StatsHttpClient extends BaseHttpClient {
         super(
             builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                .requestFactory(HttpComponentsClientHttpRequestFactory::new)
+                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault()))
                 .build()
         );
     }

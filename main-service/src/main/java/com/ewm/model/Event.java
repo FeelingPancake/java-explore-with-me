@@ -1,6 +1,7 @@
 package com.ewm.model;
 
 import com.ewm.util.enums.EventState;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,11 +47,11 @@ public class Event {
         @AttributeOverride(name = "x", column = @Column(name = "location_x")),
         @AttributeOverride(name = "y", column = @Column(name = "location_y"))
     })
-    Point location;
+    Point point;
     @Column(name = "paid")
     Boolean paid;
     @Column(name = "event_limit")
-    Integer participantLimit = 0;
+    Integer participantLimit;
     @Column(name = "published_on")
     LocalDateTime publishedOn;
     @Column(name = "request_moderation")
@@ -69,6 +69,7 @@ public class Event {
         if (this.requestModeration == null) {
             requestModeration = true;
         }
+        participantLimit = 0;
         confirmedRequests = 0L;
         state = EventState.PENDING;
         createdOn = LocalDateTime.now();

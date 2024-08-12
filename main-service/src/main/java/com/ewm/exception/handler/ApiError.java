@@ -12,11 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ApiError {
-        List<String> errors;
-        String message;
-        String reason;
-        String status;
-        String timestamp;
+    List<String> errors;
+    String message;
+    String reason;
+    String status;
+    String timestamp;
 
     public void log() {
         log.warn("Ошибка - {}", message);

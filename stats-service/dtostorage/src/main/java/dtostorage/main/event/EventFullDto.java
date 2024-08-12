@@ -1,7 +1,6 @@
 package dtostorage.main.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dtostorage.main.Location;
 import dtostorage.main.category.CategoryDto;
 import dtostorage.main.user.UserShortDto;
 import lombok.AccessLevel;
@@ -31,7 +30,7 @@ public class EventFullDto {
     LocalDateTime eventDate;
     Long id;
     UserShortDto initiator;
-    Location location;
+    EventLocation location;
     Boolean paid;
     Integer participantLimit;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

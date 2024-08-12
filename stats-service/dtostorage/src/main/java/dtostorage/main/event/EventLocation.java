@@ -1,5 +1,6 @@
-package dtostorage.main;
+package dtostorage.main.event;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,15 +9,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.jackson.Jacksonized;
 
-import javax.validation.constraints.NotNull;
-
 @Jacksonized
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Location {
+public class EventLocation {
     @NotNull
     Double lat;
     @NotNull

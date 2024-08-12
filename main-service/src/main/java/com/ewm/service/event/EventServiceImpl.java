@@ -5,14 +5,17 @@ import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Category;
 import com.ewm.model.Event;
 import com.ewm.model.EventRequest;
+import com.ewm.model.Location;
 import com.ewm.model.User;
 import com.ewm.repository.CategoryRepository;
 import com.ewm.repository.EventRepository;
 import com.ewm.repository.EventRequestRepository;
+import com.ewm.repository.LocationRepository;
 import com.ewm.repository.UserRepository;
 import com.ewm.util.enums.EventRequestStatus;
 import com.ewm.util.enums.EventState;
 import com.ewm.util.enums.SortEvent;
+import com.ewm.util.geo.GeoUtil;
 import com.ewm.util.mapper.event.EventMapper;
 import com.ewm.util.mapper.event.EventRequestMapper;
 import com.ewm.util.stats.StatsClient;
@@ -34,11 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +55,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final StatsClient statsClient;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
     private final EventRequestMapper eventRequestMapper = EventRequestMapper.INSTANCE;
 
@@ -60,13 +64,12 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getEvents(Long userId, Integer from, Integer size) {
         log.debug("Вызов getEvents() с параметрами userId: {}, from: {}, size: {}", userId, from, size);
-
-        int page = from / size;
         User initiator = userRepository.findById(userId).orElseThrow(
             () -> new NotExistsExeption("Пользователя - " + userId + " нет")
         );
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+        Pageable pageable = createPageable(from, size);
+
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).toList();
         HashMap<Long, Long> views = statsClient.getMassStats(events);
 
@@ -78,38 +81,29 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> getEventsForPublic(String text, Long[] categories, Boolean paid,
-                                                  LocalDateTime rangeStart,
-                                                  LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvent sort,
-                                                  Integer from, Integer size) {
+    public List<EventFullDto> getEventsForPublic(String text, List<Long> categories, Boolean paid,
+                                                 LocalDateTime rangeStart,
+                                                 LocalDateTime rangeEnd, Long locationId, Boolean onlyAvailable,
+                                                 SortEvent sort,
+                                                 Integer from, Integer size) {
         log.debug("Вызов getEventsForPublic() с параметрами text: {}," +
                 " categories: {}, paid: {}, rangeStart: {}," +
                 " rangeEnd: {}, onluAvailable: {}. from: {}, size: {}", text, categories, paid, rangeStart,
             rangeEnd, onlyAvailable, from, size);
 
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+        Pageable pageable = createPageable(from, size);
+
+        Map<String, Double> boundingBox = getBoundingBoxForLocation(locationId);
+        log.debug("getEventForPublic - Получен диапазон - {}", boundingBox);
+
         List<Event> events =
-            eventRepository.getEventForPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable);
+            eventRepository.getEventForPublic(text, categories, paid, rangeStart, rangeEnd, boundingBox, onlyAvailable,
+                pageable);
 
         log.debug("getEventsForPublic() возвращает: {}", events);
         HashMap<Long, Long> views = statsClient.getMassStats(events);
 
-        Comparator<EventFullDto> comparator;
-        if (sort == null) {
-            comparator = Comparator.comparing(EventFullDto::getId);
-        } else {
-            switch (sort) {
-                case EVENT_DATE:
-                    comparator = Comparator.comparing(EventFullDto::getEventDate);
-                    break;
-                case VIEWS:
-                    comparator = Comparator.comparing(EventFullDto::getViews);
-                    break;
-                default:
-                    comparator = Comparator.comparing(EventFullDto::getId);
-            }
-        }
+        Comparator<EventFullDto> comparator = getComparator(sort);
 
         return events.stream()
             .map(event -> eventMapper.toEventFullDto(event, views.getOrDefault(event.getId(), 0L)))
@@ -119,21 +113,24 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> getEventsForAdmin(Long[] users, EventState[] states, Long[] categories,
+    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart,
-                                                LocalDateTime rangeEnd, Integer from, Integer size) {
+                                                LocalDateTime rangeEnd, Long locationId, Integer from, Integer size) {
         log.info(
-            "getEventsForAdmin - users: {}, states: {}, categories: {}, rangeStart: {}, rangeEnd: {}, from: {}, size: {}",
-            Arrays.toString(users), Arrays.toString(states), Arrays.toString(categories), rangeStart, rangeEnd, from,
+            "getEventsForAdmin - users: {}, states: {}, categories: {}, rangeStart: {}, rangeEnd: {}, locationId {}, from: {}, size: {}",
+            users, states, categories, rangeStart, rangeEnd,
+            locationId, from,
             size);
 
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+        Pageable pageable = createPageable(from, size);
 
         log.debug("Pageable - {}", pageable);
 
+        Map<String, Double> boundingBox = getBoundingBoxForLocation(locationId);
+        log.debug("getEventsForAdminПолучен диапазон - {}", boundingBox);
+
         List<Event> events =
-            eventRepository.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, pageable);
+            eventRepository.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, boundingBox, pageable);
 
         log.debug("Events -: {}", events);
 
@@ -161,21 +158,7 @@ public class EventServiceImpl implements EventService {
             categoryRepository.findById(updateEventAdminRequest.getCategory()).orElseThrow(
                 () -> new NotExistsExeption("Категории - " + updateEventAdminRequest.getCategory() + " нет."));
 
-        Event event = eventMapper.toEvent(updateEventAdminRequest, category);
-        Event updatedEvent = existingEvent.toBuilder()
-            .annotation(event.getAnnotation() == null ? existingEvent.getAnnotation() : event.getAnnotation())
-            .category(event.getCategory() == null ? existingEvent.getCategory() : event.getCategory())
-            .description(event.getDescription() == null ? existingEvent.getDescription() : event.getDescription())
-            .eventDate(event.getEventDate() == null ? existingEvent.getEventDate() : event.getEventDate())
-            .location(event.getLocation() == null ? existingEvent.getLocation() : event.getLocation())
-            .paid(event.getPaid() == null ? existingEvent.getPaid() : event.getPaid())
-            .participantLimit(
-                event.getParticipantLimit() == null ? existingEvent.getParticipantLimit() : event.getParticipantLimit())
-            .requestModeration(event.getRequestModeration() == null ? existingEvent.getRequestModeration() :
-                event.getRequestModeration())
-            .state(event.getState() == null ? existingEvent.getState() : event.getState())
-            .title(event.getTitle() == null ? existingEvent.getTitle() : event.getTitle())
-            .build();
+        Event updatedEvent = eventMapper.toEvent(updateEventAdminRequest, existingEvent, category);
 
         log.debug("updatedEvent - {}, existingEvent - {}", updatedEvent, existingEvent);
         EventState existingState = existingEvent.getState();
@@ -270,22 +253,9 @@ public class EventServiceImpl implements EventService {
         if (!existingEvent.getInitiator().equals(initiator)) {
             throw new ConfilctException("Пользователь не является инициатором события");
         }
-        Event event = eventMapper.toEvent(updateEventUserRequest, category);
 
-        Event eventToUpdate = existingEvent.toBuilder()
-            .annotation(event.getAnnotation() == null ? existingEvent.getAnnotation() : event.getAnnotation())
-            .category(event.getCategory() == null ? existingEvent.getCategory() : event.getCategory())
-            .description(event.getDescription() == null ? existingEvent.getDescription() : event.getDescription())
-            .eventDate(event.getEventDate() == null ? existingEvent.getEventDate() : event.getEventDate())
-            .location(event.getLocation() == null ? existingEvent.getLocation() : event.getLocation())
-            .paid(event.getPaid() == null ? existingEvent.getPaid() : event.getPaid())
-            .participantLimit(
-                event.getParticipantLimit() == null ? existingEvent.getParticipantLimit() : event.getParticipantLimit())
-            .requestModeration(event.getRequestModeration() == null ? existingEvent.getRequestModeration() :
-                event.getRequestModeration())
-            .state(event.getState() == null ? existingEvent.getState() : event.getState())
-            .title(event.getTitle() == null ? existingEvent.getTitle() : event.getTitle())
-            .build();
+        Event eventToUpdate = eventMapper.toEvent(updateEventUserRequest, existingEvent, category);
+
         HashMap<Long, Long> views = statsClient.getMassStats(List.of(eventToUpdate));
 
         if (eventToUpdate.getState().equals(EventState.PUBLISHED)) {
@@ -356,5 +326,34 @@ public class EventServiceImpl implements EventService {
         log.debug("updateRequestsStatus() обновленные заявки: {}", savedRequest);
 
         return eventRequestMapper.toEventRequestStatusUpdateResult(savedRequest);
+    }
+
+    private Pageable createPageable(Integer from, Integer size) {
+        int page = from / size;
+        return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+    }
+
+    private Map<String, Double> getBoundingBoxForLocation(Long locationId) {
+        if (locationId == null) {
+            return null;
+        }
+
+        Location location = locationRepository.findById(locationId).orElseThrow(
+            () -> new NotExistsExeption("Локации с ID " + locationId + " не существует")
+        );
+
+        return GeoUtil.getBoundingBox(location);
+    }
+
+    private Comparator<EventFullDto> getComparator(SortEvent sort) {
+        if (sort == null) {
+            return Comparator.comparing(EventFullDto::getId);
+        }
+
+        return switch (sort) {
+            case EVENT_DATE -> Comparator.comparing(EventFullDto::getEventDate);
+            case VIEWS -> Comparator.comparing(EventFullDto::getViews);
+            default -> Comparator.comparing(EventFullDto::getId);
+        };
     }
 }
