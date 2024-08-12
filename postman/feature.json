@@ -756,12 +756,12 @@
 									"",
 									"    let location",
 									"    try {",
-									"        location = rnd.getLocation('updLoc')",
+									"        location = rnd.getLocation('updLoc');",
 									"        location =  await api.addLocation(location);",
 									"    } catch(err) {",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);",
 									"    }",
-									"    pm.collectionVariables.set(\"updLocid\", Number(location.id))",
+									"    pm.collectionVariables.set(\"updLocId\", Number(location.id))",
 									"    pm.request.body.update({",
 									"        mode: 'raw',",
 									"        raw: JSON.stringify({",
@@ -813,6 +813,15 @@
 					"request": {
 						"method": "PATCH",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{request_body}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{baseUrl}}/admin/locations/:locId",
 							"host": [
@@ -1200,7 +1209,7 @@
 			"type": "string"
 		},
 		{
-			"key": "updLocid",
+			"key": "updLocId",
 			"value": "0",
 			"type": "string"
 		}
