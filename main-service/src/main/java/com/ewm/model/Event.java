@@ -69,7 +69,9 @@ public class Event {
         if (this.requestModeration == null) {
             requestModeration = true;
         }
-        participantLimit = 0;
+        if (this.participantLimit == null) {
+            participantLimit = 0;
+        }
         confirmedRequests = 0L;
         state = EventState.PENDING;
         createdOn = LocalDateTime.now();
