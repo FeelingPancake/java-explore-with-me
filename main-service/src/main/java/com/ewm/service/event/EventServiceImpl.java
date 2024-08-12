@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
                                                  Integer from, Integer size) {
         log.debug("Вызов getEventsForPublic() с параметрами text: {}," +
                 " categories: {}, paid: {}, rangeStart: {}," +
-                " rangeEnd: {}, onluAvailable: {}. from: {}, size: {}", text, categories, paid, rangeStart,
+                " rangeEnd: {}, onluAvailable: {}. from: {}, size: {} ", text, categories, paid, rangeStart,
             rangeEnd, onlyAvailable, from, size);
 
         Pageable pageable = createPageable(from, size);
