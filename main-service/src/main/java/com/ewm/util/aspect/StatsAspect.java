@@ -23,12 +23,12 @@ public class StatsAspect {
     private final StatsClient statsHttpClient;
     private final HttpServletRequest request;
 
-    @Pointcut("execution(* com.ewm.controller.publicController.EventPublicController.getEvents(..))")
+    @Pointcut("execution(* com.ewm.controller.public_controller.EventPublicController.getEvents(..))")
     public void statsEvents() {
     }
 
 
-    @Pointcut("execution(* com.ewm.controller.publicController.EventPublicController.getEventForPublic(..))")
+    @Pointcut("execution(* com.ewm.controller.public_controller.EventPublicController.getEventForPublic(..))")
     public void statsEvent() {
     }
 
