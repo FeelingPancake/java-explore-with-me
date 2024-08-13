@@ -1,4 +1,4 @@
-package com.ewm.util.entityListeners;
+package com.ewm.util.entity_listener;
 
 import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Event;

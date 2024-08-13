@@ -1,4 +1,4 @@
-package com.ewm.controller.publicController;
+package com.ewm.controller.public_controller;
 
 import com.ewm.service.compilation.CompilationService;
 import dtostorage.main.compilation.CompilationDto;
@@ -32,7 +32,7 @@ public class CompilationPublicController {
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getCompilation(@PathVariable(name = "compId") Long compId) {
+    public CompilationDto getCompilation(@PathVariable Long compId) {
         return compilationService.getCompilation(compId);
     }
 }

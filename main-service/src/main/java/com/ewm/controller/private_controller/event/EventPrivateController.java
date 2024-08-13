@@ -1,4 +1,4 @@
-package com.ewm.controller.privateController.event;
+package com.ewm.controller.private_controller.event;
 
 import com.ewm.service.event.EventService;
 import dtostorage.main.event.EventFullDto;
@@ -30,7 +30,7 @@ public class EventPrivateController {
     private final EventService eventService;
 
     @GetMapping("/{userId}/events")
-    public List<EventFullDto> getEvents(@PathVariable(name = "userId") Long userId,
+    public List<EventFullDto> getEvents(@PathVariable Long userId,
                                         @RequestParam(name = "from", defaultValue = "0") Integer from,
                                         @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return eventService.getEvents(userId, from, size);
@@ -38,7 +38,7 @@ public class EventPrivateController {
 
     @PostMapping("/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(@PathVariable(name = "userId") Long userId,
+    public EventFullDto createEvent(@PathVariable Long userId,
                                     @RequestBody @Valid @NotNull NewEventDto newEventDto) {
 
 
@@ -46,15 +46,15 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{userId}/events/{eventId}")
-    public EventFullDto getEvent(@PathVariable(name = "userId") Long userId,
-                                 @PathVariable(name = "eventId") Long eventId) {
+    public EventFullDto getEvent(@PathVariable Long userId,
+                                 @PathVariable Long eventId) {
 
         return eventService.getEvent(userId, eventId);
     }
 
     @PatchMapping("/{userId}/events/{eventId}")
-    public EventFullDto updateEvent(@PathVariable(name = "userId") Long userId,
-                                    @PathVariable(name = "eventId") Long eventId,
+    public EventFullDto updateEvent(@PathVariable Long userId,
+                                    @PathVariable Long eventId,
                                     @RequestBody @NotNull @Valid UpdateEventUserRequest updateEventUserRequest) {
 
         return eventService.updateEvent(userId, eventId, updateEventUserRequest);
@@ -68,8 +68,8 @@ public class EventPrivateController {
     }
 
     @PatchMapping(path = {"/{userId}/events/{eventId}/requests", "/{userId}/events/{eventId}/requests/"})
-    public EventRequestStatusUpdateResult updateEventRequests(@PathVariable(name = "userId") Long userId,
-                                                              @PathVariable(name = "eventId") Long eventId,
+    public EventRequestStatusUpdateResult updateEventRequests(@PathVariable Long userId,
+                                                              @PathVariable Long eventId,
                                                               @RequestBody @Valid
                                                               EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
 

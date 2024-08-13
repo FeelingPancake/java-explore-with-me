@@ -1,4 +1,4 @@
-package com.ewm.service.eventRequest;
+package com.ewm.service.eventrequest;
 
 import com.ewm.model.EventRequest;
 import com.ewm.util.enums.EventRequestStatus;

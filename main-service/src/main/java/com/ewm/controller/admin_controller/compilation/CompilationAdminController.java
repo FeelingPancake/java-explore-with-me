@@ -1,4 +1,4 @@
-package com.ewm.controller.adminController.compilation;
+package com.ewm.controller.admin_controller.compilation;
 
 import com.ewm.service.compilation.CompilationService;
 import dtostorage.main.compilation.CompilationDto;
@@ -30,12 +30,12 @@ public class CompilationAdminController {
 
     @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable(name = "compId") Long compId) {
+    public void deleteCompilation(@PathVariable Long compId) {
         compilationService.deleteCompilation(compId);
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto updateCompilation(@PathVariable(name = "compId") Long compId,
+    public CompilationDto updateCompilation(@PathVariable Long compId,
                                             @RequestBody @Valid UpdateCompilationRequest updateCompilationRequest) {
         return compilationService.updateCompilation(compId, updateCompilationRequest);
     }

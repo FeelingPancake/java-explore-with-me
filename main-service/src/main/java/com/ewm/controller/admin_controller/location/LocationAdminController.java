@@ -1,4 +1,4 @@
-package com.ewm.controller.adminController.location;
+package com.ewm.controller.admin_controller.location;
 
 import com.ewm.service.location.LocationService;
 import dtostorage.main.location.CreateLocationRequest;
@@ -24,7 +24,7 @@ public class LocationAdminController {
     }
 
     @GetMapping("/{locationId}")
-    public LocationDto getLocation(@PathVariable(name = "locationId") Long locationId) {
+    public LocationDto getLocation(@PathVariable Long locationId) {
         return locationService.getLocation(locationId);
     }
 
@@ -35,14 +35,14 @@ public class LocationAdminController {
     }
 
     @PatchMapping("/{locationId}")
-    public LocationDto updateLocation(@PathVariable(name = "locationId") Long locationId,
+    public LocationDto updateLocation(@PathVariable Long locationId,
                                       @RequestBody @Valid UpdateLocationRequest updateLocationRequest) {
         return locationService.updateLocation(locationId, updateLocationRequest);
     }
 
     @DeleteMapping("/{locationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLocation(@PathVariable(name = "locationId") Long locationId) {
+    public void deleteLocation(@PathVariable Long locationId) {
         locationService.deleteLocation(locationId);
     }
 }

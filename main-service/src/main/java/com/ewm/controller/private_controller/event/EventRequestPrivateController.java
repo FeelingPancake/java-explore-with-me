@@ -1,6 +1,6 @@
-package com.ewm.controller.privateController.event;
+package com.ewm.controller.private_controller.event;
 
-import com.ewm.service.eventRequest.EventRequestService;
+import com.ewm.service.eventrequest.EventRequestService;
 import dtostorage.main.eventRequest.ParticipationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

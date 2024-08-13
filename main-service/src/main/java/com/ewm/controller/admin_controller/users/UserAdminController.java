@@ -1,4 +1,4 @@
-package com.ewm.controller.adminController.users;
+package com.ewm.controller.admin_controller.users;
 
 import com.ewm.service.user.UserService;
 import dtostorage.main.user.NewUserRequest;
@@ -44,7 +44,7 @@ public class UserAdminController {
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteUser(@PathVariable(name = "userId") Long userId) {
+    void deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
     }
 }
