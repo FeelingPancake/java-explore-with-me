@@ -29,9 +29,11 @@ public interface CompilationMapper {
     Compilation toCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest, Compilation compilation,
                               @Context EventRepository eventRepository);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "events", source = "newCompilationDto.events", qualifiedByName = "mapIdsToEvents")
     Compilation toCompilation(NewCompilationDto newCompilationDto, @Context EventRepository eventRepository);
 
+    @Mapping(target = "events", source = "compilation.events")
     CompilationDto toCompilationDto(Compilation compilation);
 
     @Named("mapIdsToEvents")

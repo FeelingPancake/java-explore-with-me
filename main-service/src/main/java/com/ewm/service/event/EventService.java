@@ -18,17 +18,19 @@ public interface EventService {
 
     EventFullDto updateEventForAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
 
-    List<EventFullDto> getEventsForAdmin(Long[] users,
-                                         EventState[] states,
-                                         Long[] categories,
+    List<EventFullDto> getEventsForAdmin(List<Long> users,
+                                         List<EventState> states,
+                                         List<Long> categories,
                                          LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd,
+                                         Long locationId,
                                          Integer from,
                                          Integer size);
 
-    List<EventFullDto> getEventsForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
-                                           LocalDateTime rangeEnd, Boolean onlyAvailable, SortEvent sortEvent,
-                                           Integer from, Integer size);
+    List<EventFullDto> getEventsForPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                          LocalDateTime rangeEnd, Long locationId, Boolean onlyAvailable,
+                                          SortEvent sortEvent,
+                                          Integer from, Integer size);
 
     EventFullDto getEventForPublic(Long eventId);
 

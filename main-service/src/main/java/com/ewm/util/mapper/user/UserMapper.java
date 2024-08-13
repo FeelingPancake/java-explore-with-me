@@ -6,6 +6,7 @@ import dtostorage.main.user.NewUserRequest;
 import dtostorage.main.user.UserDto;
 import dtostorage.main.user.UserShortDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", uses = {DateMapper.class})
@@ -14,6 +15,7 @@ public interface UserMapper {
 
     UserDto toUserDto(User user);
 
+    @Mapping(target = "id", ignore = true)
     User toUser(NewUserRequest newUserRequest);
 
     UserShortDto toUserShortDto(User user);

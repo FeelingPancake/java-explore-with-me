@@ -1,4 +1,4 @@
-package com.ewm.util.entityListeners;
+package com.ewm.util.entity_listener;
 
 import com.ewm.exception.NotExistsExeption;
 import com.ewm.model.Event;
@@ -19,7 +19,7 @@ public class EventRequestListener {
     public void handleEventRequestUpdate(Long eventId) {
         Long confirmedCount = eventRequestRepository.countByEventIdAndStatus(eventId, EventRequestStatus.CONFIRMED);
         Event eventEntity = eventRepository.findById(eventId).orElseThrow(() ->
-            new NotExistsExeption("События - " + eventId.toString() + " нет."));
+            new NotExistsExeption("События - " + eventId + " нет."));
 
         eventEntity.setConfirmedRequests(confirmedCount);
         eventRepository.save(eventEntity);

@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
@@ -22,12 +23,13 @@ public class ExceptionApiHandler {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class,
+    @ExceptionHandler({HandlerMethodValidationException.class, ConstraintViolationException.class,
         UnsupportedOperationException.class, IllegalArgumentException.class, MethodArgumentTypeMismatchException.class,
-    MissingServletRequestParameterException.class})
+        MissingServletRequestParameterException.class, MethodArgumentNotValidException.class})
     public ApiError handleValidationExceptions(Throwable ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .reason(ex.toString())
             .message(ex.getMessage())
             .status(HttpStatus.BAD_REQUEST.toString())
             .timestamp(LocalDateTime.now().format(formatter)).build();
@@ -40,6 +42,7 @@ public class ExceptionApiHandler {
     public ApiError handleNotFoundExceptions(RuntimeException ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .reason(ex.toString())
             .message(ex.getMessage())
             .status(HttpStatus.NOT_FOUND.toString())
             .timestamp(LocalDateTime.now().format(formatter)).build();
@@ -52,6 +55,7 @@ public class ExceptionApiHandler {
     public ApiError handleConflictExceptions(RuntimeException ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .reason(ex.toString())
             .message(ex.getMessage())
             .status(HttpStatus.NOT_FOUND.toString())
             .timestamp(LocalDateTime.now().format(formatter)).build();
@@ -64,6 +68,7 @@ public class ExceptionApiHandler {
     public ApiError handleDataintefrityException(RuntimeException ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .reason(ex.toString())
             .message(ex.getMessage())
             .status(HttpStatus.CONFLICT.toString())
             .timestamp(LocalDateTime.now().format(formatter)).build();
@@ -76,6 +81,7 @@ public class ExceptionApiHandler {
     public ApiError handleOthersExceptions(Throwable ex) {
         ApiError apiError = ApiError.builder()
             .errors(Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()))
+            .reason(ex.toString())
             .message(ex.getMessage())
             .status(HttpStatus.NOT_FOUND.toString())
             .timestamp(LocalDateTime.now().format(formatter)).build();

@@ -1,6 +1,7 @@
 package com.ewm.model;
 
 import com.ewm.util.enums.EventRequestStatus;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

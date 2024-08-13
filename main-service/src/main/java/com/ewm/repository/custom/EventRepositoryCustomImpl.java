@@ -1,44 +1,48 @@
 package com.ewm.repository.custom;
 
 import com.ewm.model.Event;
+import com.ewm.model.Location;
 import com.ewm.util.enums.EventState;
+import com.ewm.util.geo.GeoUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EventRepositoryCustomImpl implements EventRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public List<Event> getEventsForAdmin(Long[] users, EventState[] states, Long[] categories, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, Pageable pageable) {
+    public List<Event> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+                                         LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd, Location location, Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> root = query.from(Event.class);
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (users != null && users.length > 0) {
-            predicates.add(root.get("initiator").in((Object[]) users));
+        if (users != null && !users.isEmpty()) {
+            predicates.add(root.get("initiator").get("id").in(users));
         }
 
-        if (states != null && states.length > 0) {
-            predicates.add(root.get("state").in((Object[]) states));
+        if (states != null && !states.isEmpty()) {
+            predicates.add(root.get("state").in((states)));
         }
 
-        if (categories != null && categories.length > 0) {
-            predicates.add(root.get("category").in((Object[]) categories));
+        if (categories != null && !categories.isEmpty()) {
+            predicates.add(root.get("category").get("id").in((categories)));
         }
 
         if (rangeStart != null) {
@@ -56,12 +60,20 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         resultQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         resultQuery.setMaxResults(pageable.getPageSize());
 
-        return resultQuery.getResultList();
+        List<Event> events = resultQuery.getResultList();
+
+        if (location != null) {
+            return events.stream()
+                .filter(event -> GeoUtil.isWithinRadius(event.getPoint().getX(), event.getPoint().getY(), location))
+                .collect(Collectors.toList());
+        } else {
+            return events;
+        }
     }
 
     @Override
-    public List<Event> getEventForPublic(String text, Long[] categories, Boolean paid, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, Boolean onlyAvailable,
+    public List<Event> getEventForPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd, Location location, Boolean onlyAvailable,
                                          Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
@@ -76,8 +88,8 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
             ));
         }
 
-        if (categories != null && categories.length > 0) {
-            predicates.add(root.get("category").in((Object[]) categories));
+        if (categories != null && !categories.isEmpty()) {
+            predicates.add(root.get("category").get("id").in(categories));
         }
 
         if (paid != null) {
@@ -111,7 +123,15 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
         resultQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         resultQuery.setMaxResults(pageable.getPageSize());
 
-        return resultQuery.getResultList();
+        List<Event> events = resultQuery.getResultList();
+
+        if (location != null) {
+            return events.stream()
+                .filter(event -> GeoUtil.isWithinRadius(event.getPoint().getX(), event.getPoint().getY(), location))
+                .collect(Collectors.toList());
+        } else {
+            return events;
+        }
     }
 
 

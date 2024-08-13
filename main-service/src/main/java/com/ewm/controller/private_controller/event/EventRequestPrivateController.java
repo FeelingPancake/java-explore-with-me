@@ -1,6 +1,6 @@
-package com.ewm.controller.privateController.event;
+package com.ewm.controller.private_controller.event;
 
-import com.ewm.service.eventRequest.EventRequestService;
+import com.ewm.service.eventrequest.EventRequestService;
 import dtostorage.main.eventRequest.ParticipationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,7 +40,6 @@ public class EventRequestPrivateController {
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
     public ParticipationRequestDto cancelParticipationRequest(@PathVariable(name = "userId") Long userId,
                                                               @PathVariable(name = "requestId") Long requestId) {
-        // Можно ли отменить уже отмененной событие или сделать запрос на участие на уже отмененное событие???
         return eventRequestService.cancelEventRequest(userId, requestId);
     }
 
